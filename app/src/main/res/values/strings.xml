@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Interesting places</string>
-    <string name="title_activity_maps">InterestingPlaces</string>
+    <string name="title_activity_maps">Interesting Places</string>
+    <string name="location_unavailable">Location unavailable</string>
 </resources>
