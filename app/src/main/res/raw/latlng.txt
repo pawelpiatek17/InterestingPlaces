@@ -1,0 +1,7 @@
+Manufaktura|51.779521|19.446634|aaaaaaaa|manu
+Port|51.703745|19.415141|bbbbbbbbbbbb|port
+Galeria £ódzka|51.758990|19.465225|ccccccc|galeria_lodzka
+Sukcesja|51.749981|19.448324|dddddddd|sukcesja
+Park im. Jana Matejki|51.773967|19.485596|eeeeeeeeee|park_matejki
+Park im. W. Reymonta|51.744298|19.463621|ffffffffff|park_reymonta
+Palmiarnia|51.760312|19.479950|gggggggggggg|palmiarnia

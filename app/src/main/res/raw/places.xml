@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<places>
+    <info>
+        <name>Manufaktura</name>
+        <latitude>51.779521</latitude>
+        <longitude>19.446634</longitude>
+        <imgName>manu</imgName>
+        <description>aaaaaaaa</description>
+        <address>Drewnowska 58, 91-002 Łódź</address>
+    </info>
+    <info>
+        <name>Port </name>
+        <latitude>51.703745</latitude>
+        <longitude>19.415141</longitude>
+        <imgName>port</imgName>
+        <description>bbbbbbbbbbbb </description>
+        <address>Pabianicka 245, 93-457 Łódź</address>
+    </info>
+    <info>
+        <name>Galeria Łódzka</name>
+        <latitude>51.758990</latitude>
+        <longitude>19.465225</longitude>
+        <imgName>galeria_lodzka</imgName>
+        <description>ccccccc </description>
+        <address> Aleja marsz. Józefa Piłsudskiego 15/23, 90-001 Łódź</address>
+    </info>
+    <info>
+        <name>Sukcesja </name>
+        <latitude>51.749981</latitude>
+        <longitude>19.448324</longitude>
+        <imgName>sukcesja</imgName>
+        <description>dddddddd </description>
+        <address>93-590, aleja Politechniki 1, 93-590 Łódź</address>
+    </info>
+    <info>
+        <name>Park im. Jana Matejki</name>
+        <latitude>51.773967</latitude>
+        <longitude>19.485596</longitude>
+        <imgName>park_matejki</imgName>
+        <description>eeeeeeeeee </description>
+        <address>91-001 Łódź</address>
+    </info>
+    <info>
+        <name>Park im. W. Reymonta</name>
+        <latitude>51.744298</latitude>
+        <longitude>19.463621</longitude>
+        <imgName>park_reymonta</imgName>
+        <description>ffffffffff </description>
+        <address>Piotrowska, 91-001 Łódź</address>
+    </info>
+    <info>
+        <name>Palmiarnia </name>
+        <latitude>51.760312</latitude>
+        <longitude>19.479950</longitude>
+        <imgName>palmiarnia</imgName>
+        <description>gggggggggggg</description>
+        <address>Piłsudskiego 61, 90-329 Łódź</address>
+    </info>
+</places>

@@ -50,8 +50,8 @@
             android:layout_height="60dp"
             android:background="@color/green8ddc92">
             <TextView
-                android:text="Przykładowa nazwa obiektu"
-                android:textSize="20dp"
+                android:id="@+id/sliding_layout_name"
+                android:textSize="20sp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="30dp"
@@ -59,10 +59,10 @@
                 android:textColor="@android:color/white"/>
         </RelativeLayout>
         <ImageView
+            android:id="@+id/sliding_layout_image"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="5"
-            android:src="@drawable/img1"
             android:scaleType="centerCrop"
             android:onClick="imageViewInSlidingLayoutClick"/>
 
@@ -82,10 +82,9 @@
                 android:layout_alignParentStart="true"
                 android:src="@drawable/ic_localization_green_280px"/>
             <TextView
-                android:text="ASDASFAGA SAADSD 3423"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/sliding_layout_adres"
+                android:id="@+id/sliding_layout_address"
                 android:layout_toEndOf="@id/sliding_layout_localization_ic"
                 android:layout_marginTop="2dp"
                 android:layout_marginLeft="10dp"
@@ -93,7 +92,7 @@
             <View
                 style="@style/Divider"
                 android:minHeight="1dp"
-                android:layout_below="@id/sliding_layout_adres"
+                android:layout_below="@id/sliding_layout_address"
                 android:layout_marginTop="2dp"
                 android:layout_marginBottom="2dp"
                 android:id="@+id/sliding_layout_divider"/>
@@ -107,10 +106,9 @@
                 android:src="@drawable/ic_description_green_18dp"/>
 
             <TextView
-                android:text="ashjadl sddajdd asdasddada sadasdasddfgdf gasdasdsdsad asdasdas dadsaffssd fad dadsfsdf fffffsd dsfsdf fdsfsdf ssdfsf gfdgdfg "
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/sliding_layout_opis"
+                android:id="@+id/sliding_layout_description"
                 android:layout_toEndOf="@id/sliding_layout_description_ic"
                 android:layout_marginTop="2dp"
                 android:layout_marginLeft="10dp"

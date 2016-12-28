@@ -4,6 +4,8 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -13,7 +15,11 @@ import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.example.pawe.myapplication.DatabaseContract.DatabasePlace;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -37,6 +43,8 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
+import java.util.HashMap;
+
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
         GoogleApiClient.OnConnectionFailedListener,
         GoogleApiClient.ConnectionCallbacks,LocationListener{
@@ -55,6 +63,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public Location mCurrentLocation;
     private Marker currentLocationMarker;
     SlidingUpPanelLayout slidingLayout;
+    public DbHelper mDbHelper;
     private final String SAVED_STATE_BOOLEAN = "saved_boolean";
     private final String SAVED_STATE_MY_LOCATION = "saved_my_location";
     private boolean restore;
@@ -66,6 +75,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        mDbHelper = new DbHelper(MapsActivity.this);
         if(mGoogleApiClient == null){
             mGoogleApiClient = new GoogleApiClient.Builder(this)
                     .addConnectionCallbacks(this)
@@ -73,12 +83,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     .addApi(LocationServices.API)
                     .build();
         }
-        lodz = new LatLngBounds.Builder()
-                .include(new LatLng(51.806862, 19.321633))
-                .include(new LatLng(51.858473, 19.504835))
-                .include(new LatLng(51.754398, 19.637833))
-                .include(new LatLng(51.687828, 19.467888))
-                .build();
         Log.d("camera", String.valueOf(lodz));
         slidingLayout = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
         slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
@@ -86,8 +90,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         slidingLayout.setClickable(true);
         mRequestingLocationUpdates = false;
         if(savedInstanceState != null) {
-            boolean[] boolarr= new boolean[2];
-            boolarr = savedInstanceState.getBooleanArray(SAVED_STATE_BOOLEAN);
+           /** bylo -> boolean[] boolarr= new boolean[2];
+            boolarr = savedInstanceState.getBooleanArray(SAVED_STATE_BOOLEAN);**/
+            boolean[] boolarr = savedInstanceState.getBooleanArray(SAVED_STATE_BOOLEAN);
             if(boolarr[0] && boolarr[1]){
                 mRequestingLocationUpdates = boolarr[0];
                 locationUpdatesOn = false;
@@ -162,8 +167,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                Log.e("markerClick","abb");
+                final String d = "drawable";
+                HashMap<String,String> hashMap = (HashMap<String,String>) marker.getTag();
+                String name = hashMap.get(DatabasePlace.COLUMN_NAME_NAME);
+                Log.e("markerClick",name);
+                String address = hashMap.get(DatabasePlace.COLUMN_NAME_ADDRESS);
+                Log.e("markerClick",address);
+                String description = hashMap.get(DatabasePlace.COLUMN_NAME_DESCRIPTION);
+                Log.e("markerClick",description);
+                String imgName = hashMap.get(DatabasePlace.COLUMN_NAME_IMG_NAME);
+                Log.e("markerClick",imgName);
                 slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                ImageView iv = (ImageView)findViewById(R.id.sliding_layout_image);
+                TextView tvName = (TextView) findViewById(R.id.sliding_layout_name);
+                TextView tvAddress = (TextView) findViewById(R.id.sliding_layout_address);
+                TextView tvDescription = (TextView) findViewById(R.id.sliding_layout_description);
+                tvName.setText(name);
+                tvAddress.setText(address);
+                tvDescription.setText(description);
+                iv.setImageDrawable(getDrawable(getResources().getIdentifier(imgName,d,getPackageName())));
                 return false;
             }
         });
@@ -173,11 +195,59 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
             }
         });
+        setMapOptions();
+        addMarkers();
+    }
+    private void setMapOptions(){
+        lodz = new LatLngBounds.Builder()
+                .include(new LatLng(51.806862, 19.321633))
+                .include(new LatLng(51.858473, 19.504835))
+                .include(new LatLng(51.754398, 19.637833))
+                .include(new LatLng(51.687828, 19.467888))
+                .build();
         mMap.setLatLngBoundsForCameraTarget(lodz);
         mMap.setMinZoomPreference(10.644797f);
-        //mMap.setMinZoomPreference(11);
-        LatLng manufaktura = new LatLng(51.779521, 19.446634);
-        mMap.addMarker(new MarkerOptions().position(manufaktura).title("Manufaktura"));
+    }
+    private void addMarkers(){
+        SQLiteDatabase db = mDbHelper.getReadableDatabase();
+        String[] projection = {
+                DatabasePlace._ID,
+                DatabasePlace.COLUMN_NAME_NAME,
+                DatabasePlace.COLUMN_NAME_ADDRESS,
+                DatabasePlace.COLUMN_NAME_DESCRIPTION,
+                DatabasePlace.COLUMN_NAME_IMG_NAME,
+                DatabasePlace.COLUMN_NAME_LATITUDE,
+                DatabasePlace.COLUMN_NAME_LONGITUDE
+        };
+        Cursor cursor = db.query(
+                DatabasePlace.TABLE_NAME_PLACES,
+                projection,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+        while (cursor.moveToNext()) {
+            MarkerOptions markerOptions = new MarkerOptions();
+            markerOptions.position(new LatLng(Double.parseDouble(cursor.getString(
+                    cursor.getColumnIndex(DatabasePlace.COLUMN_NAME_LATITUDE))),
+                    Double.parseDouble(cursor.getString(cursor.getColumnIndex(
+                            DatabasePlace.COLUMN_NAME_LONGITUDE)))));
+            Marker marker = mMap.addMarker(markerOptions);
+            HashMap<String,String> hashMap = new HashMap<>();
+            hashMap.put(DatabasePlace.COLUMN_NAME_NAME,
+                    cursor.getString(cursor.getColumnIndex(DatabasePlace.COLUMN_NAME_NAME)));
+            hashMap.put(DatabasePlace.COLUMN_NAME_DESCRIPTION,
+                    cursor.getString(cursor.getColumnIndex(DatabasePlace.COLUMN_NAME_DESCRIPTION)));
+            hashMap.put(DatabasePlace.COLUMN_NAME_ADDRESS,
+                    cursor.getString(cursor.getColumnIndex(DatabasePlace.COLUMN_NAME_ADDRESS)));
+            hashMap.put(DatabasePlace.COLUMN_NAME_IMG_NAME,
+                    cursor.getString(cursor.getColumnIndex(DatabasePlace.COLUMN_NAME_IMG_NAME)));
+            hashMap.put(DatabasePlace._ID,
+                    cursor.getString(cursor.getColumnIndex(DatabasePlace._ID)));
+            marker.setTag(hashMap);
+        }
     }
 
     /** LOCATION METHODS*/
