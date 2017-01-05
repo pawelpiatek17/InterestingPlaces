@@ -3,5 +3,5 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FFFFFF</color>
-    <color name="green8ddc92">#35CE3D</color>
+    <color name="customGreen">#35CE3D</color>
 </resources>

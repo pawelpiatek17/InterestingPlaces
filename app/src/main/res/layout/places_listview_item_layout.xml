@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/places_listview_item_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="dfasfasdfasfasf"
+        android:textSize="20sp"
+        android:paddingBottom="5dp"
+        android:id="@+id/places_listview_item_layout_name"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="dfasfasdfasfasf"
+        android:textSize="20sp"
+        android:paddingBottom="5dp"
+        android:id="@+id/places_listview_item_layout_distance"/>
+</LinearLayout>

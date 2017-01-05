@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:weightSum="7"
+    android:orientation="vertical"
+    android:background="@android:color/white"
+    android:id="@+id/activity_show_place"
+    tools:context="com.example.pawe.myapplication.ShowPlaceActivity">
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="60dp"
+    android:background="@color/customGreen">
+    <TextView
+        android:id="@+id/activity_show_place_name"
+        android:textSize="20sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="10dp"
+        android:textColor="@android:color/white"/>
+</RelativeLayout>
+<ImageView
+    android:id="@+id/activity_show_place_image"
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    android:layout_weight="5"
+    android:scaleType="centerCrop" />
+
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    android:layout_weight="2"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:paddingBottom="10dp"
+    android:paddingTop="10dp">
+    <ImageView
+        android:background="@android:color/white"
+        android:id="@+id/activity_show_place_localization_ic"
+        android:layout_width="18dp"
+        android:layout_height="20dp"
+        android:layout_alignParentStart="true"
+        android:src="@drawable/ic_localization_green_280px"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/activity_show_place_address"
+        android:layout_toEndOf="@id/activity_show_place_localization_ic"
+        android:layout_marginTop="2dp"
+        android:layout_marginLeft="10dp"
+        android:layout_alignBaseline="@id/activity_show_place_localization_ic"/>
+    <View
+        style="@style/Divider"
+        android:minHeight="1dp"
+        android:layout_below="@id/activity_show_place_address"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="2dp"
+        android:id="@+id/activity_show_place_divider"/>
+    <ImageView
+        android:background="@android:color/white"
+        android:id="@+id/activity_show_place_description_ic"
+        android:layout_width="18dp"
+        android:layout_height="20dp"
+        android:layout_below="@id/activity_show_place_divider"
+        android:layout_alignStart="@id/activity_show_place_localization_ic"
+        android:src="@drawable/ic_description_green_18dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/activity_show_place_description"
+        android:layout_toEndOf="@id/activity_show_place_description_ic"
+        android:layout_marginTop="2dp"
+        android:layout_marginLeft="10dp"
+        android:layout_alignTop="@id/activity_show_place_description_ic"
+        android:ellipsize="end"
+        android:lines="1"/>
+</RelativeLayout>
+</LinearLayout>

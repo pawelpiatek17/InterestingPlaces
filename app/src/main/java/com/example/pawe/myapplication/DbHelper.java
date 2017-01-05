@@ -23,7 +23,7 @@ import static com.example.pawe.myapplication.DatabaseContract.DatabasePlace;
  */
 
 public class DbHelper extends SQLiteOpenHelper {
-    Context context;
+    private Context context;
     public static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "Database.db";
     private static final String INT_TYPE = " INT ";
@@ -68,7 +68,7 @@ public class DbHelper extends SQLiteOpenHelper {
 
     private void populateDatabase(SQLiteDatabase db) {
         try {
-            ArrayList<Place> places = (ArrayList) parseXml();
+            ArrayList<Place> places = (ArrayList<Place>) parseXml();
             for (Place p : places
                  ) {
                 ContentValues values = new ContentValues();
@@ -80,29 +80,25 @@ public class DbHelper extends SQLiteOpenHelper {
                 values.put(DatabasePlace.COLUMN_NAME_LONGITUDE,p.getLongitude());
                 db.insert(DatabasePlace.TABLE_NAME_PLACES,null,values);
             }
-        } catch (XmlPullParserException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (XmlPullParserException | IOException e) {
             e.printStackTrace();
         }
     }
 
     private List parseXml() throws XmlPullParserException, IOException {
-        InputStream input = context.getResources().openRawResource(R.raw.places);
-        try {
+        try (InputStream input = context.getResources().openRawResource(R.raw.places)) {
             XmlPullParser parser = Xml.newPullParser();
             parser.setInput(input, null);
             parser.nextTag();
             return readPlaces(parser);
         } finally {
-            input.close();
             context = null;
 
         }
     }
 
     private List readPlaces(XmlPullParser parser) throws XmlPullParserException, IOException {
-        List<Place> places = new ArrayList<Place>();
+        List<Place> places = new ArrayList<>();
         parser.require(XmlPullParser.START_TAG, null, "places");
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
@@ -137,8 +133,6 @@ public class DbHelper extends SQLiteOpenHelper {
                 address = readAddress(parser);
             } else if (tagName.equals("description")) {
                 description = readDescription(parser);
-            } else if (tagName.equals("imgName")) {
-                imgName = readImgName(parser);
             } else if (tagName.equals("latitude")) {
                 latitude = readLatitude(parser);
             } else if (tagName.equals("longitude")) {
