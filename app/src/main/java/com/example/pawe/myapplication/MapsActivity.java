@@ -19,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.pawe.myapplication.DatabaseContract.DatabasePlace;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -212,7 +213,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 tvName.setText(name);
                 tvAddress.setText(address);
                 tvDescription.setText(description);
-                iv.setImageDrawable(getDrawable(getResources().getIdentifier(imgName,d,getPackageName())));
+                Glide.with(MapsActivity.this).load(getResources().getIdentifier(imgName,d,getPackageName())).into(iv);
                 return false;
             }
         });
@@ -248,7 +249,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         tvName.setText(name);
         tvAddress.setText(address);
         tvDescription.setText(description);
-        iv.setImageDrawable(getDrawable(getResources().getIdentifier(imgName,d,getPackageName())));
+        Glide.with(MapsActivity.this).load(getResources().getIdentifier(imgName,d,getPackageName())).into(iv);
     }
     private void setMapOptions(){
         lodz = new LatLngBounds.Builder()

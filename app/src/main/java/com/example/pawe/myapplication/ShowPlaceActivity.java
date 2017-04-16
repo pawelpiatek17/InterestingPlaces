@@ -9,6 +9,7 @@ import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.example.pawe.myapplication.DatabaseContract.DatabasePlace;
 
 public class ShowPlaceActivity extends Activity {
@@ -50,7 +51,7 @@ public class ShowPlaceActivity extends Activity {
         tvName.setText(cursor.getString(cursor.getColumnIndex(DatabasePlace.COLUMN_NAME_NAME)));
         tvAddress.setText(cursor.getString(cursor.getColumnIndex(DatabasePlace.COLUMN_NAME_ADDRESS)));
         tvDescription.setText(cursor.getString(cursor.getColumnIndex(DatabasePlace.COLUMN_NAME_DESCRIPTION)));
-        iv.setImageDrawable(getDrawable(getResources().getIdentifier(cursor.getString(cursor.getColumnIndex(DatabasePlace.COLUMN_NAME_IMG_NAME)),"drawable",getPackageName())));
+        Glide.with(this).load(getResources().getIdentifier(cursor.getString(cursor.getColumnIndex(DatabasePlace.COLUMN_NAME_IMG_NAME)),"drawable",getPackageName())).into(iv);
         cursor.close();
         mDbHelper.close();
     }
