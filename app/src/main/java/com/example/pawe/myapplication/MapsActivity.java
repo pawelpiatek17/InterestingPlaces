@@ -31,7 +31,6 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
-import com.google.android.gms.location.LocationSettingsStates;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -51,13 +50,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         GoogleApiClient.OnConnectionFailedListener,
         GoogleApiClient.ConnectionCallbacks,LocationListener{
 
+    private final String TAG = "MapsActivity";
+    private final String SAVED_STATE_BOOLEAN = "saved_boolean";
+    private final String SAVED_STATE_MARKER_HASHMAP = "marker_hashmap";
+    private final String SAVED_STATE_PANEL_STATE = "panel_state";
+    public final static String MY_LOCATION_EXTRA_MESSAGE = "location_extra";
+    private final static int REQUEST_CHECK_SETTINGS_CODE = 1;
+    private final static int REQUEST_LOCATION_PERMISSION_CODE = 1;
     private GoogleMap mMap;
     private LatLngBounds lodz;
     private boolean locationPermissionOk = false;
     public GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
-    private final static int REQUEST_CHECK_SETTINGS_CODE = 1;
-    private final static int REQUEST_LOCATION_PERMISSION_CODE = 1;
     private boolean askForLocalizationPermission;
     private boolean mRequestingLocationUpdates;
     private boolean locationUpdatesOn = false;
@@ -65,10 +69,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Marker currentLocationMarker;
     SlidingUpPanelLayout slidingLayout;
     public DbHelper mDbHelper;
-    private final String SAVED_STATE_BOOLEAN = "saved_boolean";
-    private final String SAVED_STATE_MARKER_HASHMAP = "marker_hashmap";
-    private final String SAVED_STATE_PANEL_STATE = "panel_state";
-    public final static String MY_LOCATION_EXTRA_MESSAGE = "location_extra";
     private boolean restore;
     private HashMap<String,String> clickedMarkerHashMap;
 
@@ -138,11 +138,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     protected void onPause() {
-        super.onPause();
         if(mGoogleApiClient.isConnected())
         {
             stopLocationUpdates();
         }
+        super.onPause();
     }
 
     @Override
@@ -156,8 +156,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         mDbHelper.close();
+        super.onDestroy();
     }
 
     @Override
@@ -203,7 +203,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Log.e("markerClick",address);
                 String description = clickedMarkerHashMap.get(DatabasePlace.COLUMN_NAME_DESCRIPTION);
                 Log.e("markerClick",description);
-                String imgName = clickedMarkerHashMap.get(DatabasePlace.COLUMN_NAME_IMG_NAME);
+                String imgName = clickedMarkerHashMap.get(DatabasePlace.COLUMN_NAME_MAIN_IMG_NAME);
                 Log.e("markerClick",imgName);
                 slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
                 ImageView iv = (ImageView)findViewById(R.id.sliding_layout_image);
@@ -240,7 +240,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Log.e("markerClick",address);
         String description = clickedMarkerHashMap.get(DatabasePlace.COLUMN_NAME_DESCRIPTION);
         Log.e("markerClick",description);
-        String imgName = clickedMarkerHashMap.get(DatabasePlace.COLUMN_NAME_IMG_NAME);
+        String imgName = clickedMarkerHashMap.get(DatabasePlace.COLUMN_NAME_MAIN_IMG_NAME);
         Log.e("markerClick",imgName);
         ImageView iv = (ImageView)findViewById(R.id.sliding_layout_image);
         TextView tvName = (TextView) findViewById(R.id.sliding_layout_name);
@@ -268,7 +268,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 DatabasePlace.COLUMN_NAME_NAME,
                 DatabasePlace.COLUMN_NAME_ADDRESS,
                 DatabasePlace.COLUMN_NAME_DESCRIPTION,
-                DatabasePlace.COLUMN_NAME_IMG_NAME,
+                DatabasePlace.COLUMN_NAME_MAIN_IMG_NAME,
                 DatabasePlace.COLUMN_NAME_LATITUDE,
                 DatabasePlace.COLUMN_NAME_LONGITUDE
         };
@@ -295,8 +295,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     cursor.getString(cursor.getColumnIndex(DatabasePlace.COLUMN_NAME_DESCRIPTION)));
             hashMap.put(DatabasePlace.COLUMN_NAME_ADDRESS,
                     cursor.getString(cursor.getColumnIndex(DatabasePlace.COLUMN_NAME_ADDRESS)));
-            hashMap.put(DatabasePlace.COLUMN_NAME_IMG_NAME,
-                    cursor.getString(cursor.getColumnIndex(DatabasePlace.COLUMN_NAME_IMG_NAME)));
+            hashMap.put(DatabasePlace.COLUMN_NAME_MAIN_IMG_NAME,
+                    cursor.getString(cursor.getColumnIndex(DatabasePlace.COLUMN_NAME_MAIN_IMG_NAME)));
             hashMap.put(DatabasePlace._ID,
                     cursor.getString(cursor.getColumnIndex(DatabasePlace._ID)));
             marker.setTag(hashMap);
@@ -465,20 +465,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     public void showListOfPlaces(View view) {
-        if (mGoogleApiClient != null && LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient) != null)
+        if (mGoogleApiClient != null && locationUpdatesOn)
         {
+            Log.d(TAG,"showListOfPlaces, mGoogleApiClient != null && LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient) != null");
             Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
             Intent intent = new Intent(this,ListActivity.class);
+            intent.putExtra(ListActivity.IS_LOCATION_IN_EXTRA,true);
             intent.putExtra(MY_LOCATION_EXTRA_MESSAGE,new LatLng(lastLocation.getLatitude(),lastLocation.getLongitude()));
             startActivity(intent);
         }
         else if(mCurrentLocation != null){
+            Log.d(TAG,"showListOfPlaces, mCurrentLocation != null");
             Intent intent = new Intent(this,ListActivity.class);
+            intent.putExtra(ListActivity.IS_LOCATION_IN_EXTRA,true);
             intent.putExtra(MY_LOCATION_EXTRA_MESSAGE,new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()));
             startActivity(intent);
         }
         else {
-            Toast.makeText(this, "Location unavailable", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this,ListActivity.class);
+            startActivity(intent);
         }
     }
 }

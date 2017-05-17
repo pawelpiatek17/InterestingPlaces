@@ -21,6 +21,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 
 public class ListActivity extends android.app.ListActivity {
+
+    public final static String IS_LOCATION_IN_EXTRA = "is_location_extra";
     private final float maxDistanceInMeters = 10000;
     private ListView listView;
     public final static String LOCATION_NAME_EXTRA = "name_extra";
@@ -29,14 +31,22 @@ public class ListActivity extends android.app.ListActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
         Intent intent = getIntent();
-        LatLng latLng = intent.getParcelableExtra(MapsActivity.MY_LOCATION_EXTRA_MESSAGE);
+        ArrayList<HashMap<String,String>> arrayList;
+        String[] from;
+        if (!intent.getBooleanExtra(IS_LOCATION_IN_EXTRA,false)) {
+            from = new String[]{"name", "address"};
+            arrayList = getDataFromDatabase(from);
+        }
+        else{
+            LatLng latLng = intent.getParcelableExtra(MapsActivity.MY_LOCATION_EXTRA_MESSAGE);
+            from = new String[]{"name", "distance"};
+            arrayList = getDataFromDatabase(latLng,from);
+        }
         listView = getListView();
-        String[] from = {"name", "distance"};
         int[] to = {R.id.places_listview_item_layout_name,R.id.places_listview_item_layout_distance};
-        ArrayList<HashMap<String,String>> arrayList = getDataFromDatabase(latLng,from);
         SimpleAdapter adapter = new SimpleAdapter(this,
                 arrayList, R.layout.places_listview_item_layout, from, to);
-        Log.e("ListActivity","onCreate po adapter construktor");
+        Log.e("ListActivity","onCreate po adapter constructor");
         listView.setAdapter(adapter);
         Log.e("ListActivity","onCreate po setAdapter");
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -50,9 +60,9 @@ public class ListActivity extends android.app.ListActivity {
             }
         });
     }
-    private ArrayList<HashMap<String,String>> getDataFromDatabase(LatLng myLocation, String[] s) {
-        String nameString = s[0];
-        String distanceString = s[1];
+    private ArrayList<HashMap<String,String>> getDataFromDatabase(LatLng myLocation, String[] strings) {
+        String nameString = strings[0];
+        String distanceString = strings[1];
         ArrayList<HashMap<String,String>> list = new ArrayList<>();
         DbHelper mDbHelper = new DbHelper(ListActivity.this);
         SQLiteDatabase db = mDbHelper.getReadableDatabase();
@@ -88,6 +98,37 @@ public class ListActivity extends android.app.ListActivity {
             list.add(hashMap);
         }
         Collections.sort(list,new CustomHashMapComparator(distanceString));
+        Log.e("ListActivity","getDataFromDatabase przed return");
+        cursor.close();
+        mDbHelper.close();
+        return list;
+    }
+    private ArrayList<HashMap<String,String>> getDataFromDatabase(String[] strings) {
+        String nameString = strings[0];
+        String addressString = strings[1];
+        ArrayList<HashMap<String,String>> list = new ArrayList<>();
+        DbHelper mDbHelper = new DbHelper(ListActivity.this);
+        SQLiteDatabase db = mDbHelper.getReadableDatabase();
+        String[] projection = {
+                DatabasePlace.COLUMN_NAME_NAME,
+                DatabasePlace.COLUMN_NAME_ADDRESS
+        };
+        Cursor cursor = db.query(
+                DatabasePlace.TABLE_NAME_PLACES,
+                projection,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+        while (cursor.moveToNext()) {
+            HashMap<String,String> hashMap = new HashMap<>();
+            hashMap.put(nameString,cursor.getString(
+                    cursor.getColumnIndex(DatabasePlace.COLUMN_NAME_NAME)));
+            hashMap.put(addressString, cursor.getString(cursor.getColumnIndex(DatabasePlace.COLUMN_NAME_ADDRESS)));
+            list.add(hashMap);
+        }
         Log.e("ListActivity","getDataFromDatabase przed return");
         cursor.close();
         mDbHelper.close();

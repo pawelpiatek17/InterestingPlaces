@@ -30,7 +30,7 @@ public class ShowPlaceActivity extends Activity {
                 DatabasePlace.COLUMN_NAME_NAME,
                 DatabasePlace.COLUMN_NAME_ADDRESS,
                 DatabasePlace.COLUMN_NAME_DESCRIPTION,
-                DatabasePlace.COLUMN_NAME_IMG_NAME
+                DatabasePlace.COLUMN_NAME_MAIN_IMG_NAME
         };
         String selection = DatabasePlace.COLUMN_NAME_NAME + " = ?";
         String[] selectionArgs ={name};
@@ -51,7 +51,7 @@ public class ShowPlaceActivity extends Activity {
         tvName.setText(cursor.getString(cursor.getColumnIndex(DatabasePlace.COLUMN_NAME_NAME)));
         tvAddress.setText(cursor.getString(cursor.getColumnIndex(DatabasePlace.COLUMN_NAME_ADDRESS)));
         tvDescription.setText(cursor.getString(cursor.getColumnIndex(DatabasePlace.COLUMN_NAME_DESCRIPTION)));
-        Glide.with(this).load(getResources().getIdentifier(cursor.getString(cursor.getColumnIndex(DatabasePlace.COLUMN_NAME_IMG_NAME)),"drawable",getPackageName())).into(iv);
+        Glide.with(this).load(getResources().getIdentifier(cursor.getString(cursor.getColumnIndex(DatabasePlace.COLUMN_NAME_MAIN_IMG_NAME)),"drawable",getPackageName())).into(iv);
         cursor.close();
         mDbHelper.close();
     }

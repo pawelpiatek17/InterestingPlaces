@@ -36,14 +36,14 @@ public class DbHelper extends SQLiteOpenHelper {
                     DatabasePlace.COLUMN_NAME_LATITUDE + TEXT_TYPE + COMMA_SEP +
                     DatabasePlace.COLUMN_NAME_LONGITUDE + TEXT_TYPE + COMMA_SEP +
                     DatabasePlace.COLUMN_NAME_DESCRIPTION + TEXT_TYPE + COMMA_SEP +
-//                    DatabasePlace.COLUMN_NAME_PLACES_IMGS_KEY + INT_TYPE  + COMMA_SEP +
-                    DatabasePlace.COLUMN_NAME_IMG_NAME + TEXT_TYPE + COMMA_SEP +
+                    DatabasePlace.COLUMN_NAME_PLACES_IMGS_KEY + INT_TYPE  + COMMA_SEP +
+                    DatabasePlace.COLUMN_NAME_MAIN_IMG_NAME + TEXT_TYPE + COMMA_SEP +
                     DatabasePlace.COLUMN_NAME_ADDRESS + TEXT_TYPE + " );";
     public static final String SQL_CREATE_IMAGES =
             "CREATE TABLE " + DatabaseImages.TABLE_NAME_IMAGES + " ( " +
-                    DatabaseImages._ID + "INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    DatabaseImages.COLUMN_NAME_IMAGES_IMGS_KEY + INT_TYPE + COMMA_SEP +
-                    DatabaseImages.COLUMN_NAME_PATH + TEXT_TYPE + " );";
+                    DatabaseImages._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    DatabaseImages.COLUMN_NAME_IMAGES_IMG_KEY + INT_TYPE + COMMA_SEP +
+                    DatabaseImages.COLUMN_NAME_IMG_NAME + TEXT_TYPE + " );";
     public static final String SQL_DELETE_PLACE =
             "DROP TABLE IF EXISTS " + DatabasePlace.TABLE_NAME_PLACES;
     public static final String SQL_DELETE_IMAGES =
@@ -56,8 +56,8 @@ public class DbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        //db.execSQL(SQL_CREATE_IMAGES);
         db.execSQL(SQL_CREATE_PLACE);
+        db.execSQL(SQL_CREATE_IMAGES);
         populateDatabase(db);
     }
 
@@ -69,16 +69,28 @@ public class DbHelper extends SQLiteOpenHelper {
     private void populateDatabase(SQLiteDatabase db) {
         try {
             ArrayList<Place> places = (ArrayList<Place>) parseXml();
+            int images_img_key = 0;
             for (Place p : places
                  ) {
                 ContentValues values = new ContentValues();
                 values.put(DatabasePlace.COLUMN_NAME_NAME,p.getName());
                 values.put(DatabasePlace.COLUMN_NAME_ADDRESS,p.getAddress());
                 values.put(DatabasePlace.COLUMN_NAME_DESCRIPTION,p.getDescription());
-                values.put(DatabasePlace.COLUMN_NAME_IMG_NAME,p.getimgName());
+                values.put(DatabasePlace.COLUMN_NAME_MAIN_IMG_NAME,p.getimgName());
+               // values.put(DatabasePlace.COLUMN_NAME_PLACES_IMGS_KEY,images_img_key);
                 values.put(DatabasePlace.COLUMN_NAME_LATITUDE,p.getLatitude());
                 values.put(DatabasePlace.COLUMN_NAME_LONGITUDE,p.getLongitude());
-                db.insert(DatabasePlace.TABLE_NAME_PLACES,null,values);
+                images_img_key = (int) db.insert(DatabasePlace.TABLE_NAME_PLACES,null,values);
+                if (images_img_key == -1) {
+                    continue;
+                }
+                for (String s : p.getlistOfImages()
+                     ) {
+                    values = new ContentValues();
+                    values.put(DatabaseImages.COLUMN_NAME_IMAGES_IMG_KEY,images_img_key);
+                    values.put(DatabaseImages.COLUMN_NAME_IMG_NAME,s);
+                    db.insert(DatabaseImages.TABLE_NAME_IMAGES,null,values);
+                }
             }
         } catch (XmlPullParserException | IOException e) {
             e.printStackTrace();
@@ -120,6 +132,7 @@ public class DbHelper extends SQLiteOpenHelper {
         String description = null;
         String latitude = null;
         String longitude = null;
+        ArrayList<String> listOfImages = null;
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
                 continue;
@@ -127,7 +140,7 @@ public class DbHelper extends SQLiteOpenHelper {
             String tagName = parser.getName();
             if (tagName.equals("name")) {
                 name = readName(parser);
-            } else if (tagName.equals("imgName")) {
+            } else if (tagName.equals("img_name")) {
                 imgName = readImgName(parser);
             } else if (tagName.equals("address")) {
                 address = readAddress(parser);
@@ -137,10 +150,37 @@ public class DbHelper extends SQLiteOpenHelper {
                 latitude = readLatitude(parser);
             } else if (tagName.equals("longitude")) {
                 longitude = readLongitude(parser);
+            } else if (tagName.equals("img_list")) {
+                listOfImages = readImgList(parser);
             }
         }
-        return new Place(name, imgName, address, description, latitude, longitude);
+        return new Place(name, imgName, address, description, latitude, longitude, listOfImages );
     }
+
+    private ArrayList<String> readImgList(XmlPullParser parser) throws IOException, XmlPullParserException {
+        parser.require(XmlPullParser.START_TAG, null, "img_list");
+        ArrayList<String> listOfImages = new ArrayList<>();
+        while (parser.next() != XmlPullParser.END_TAG) {
+            if (parser.getEventType() != XmlPullParser.START_TAG) {
+                continue;
+            }
+            String tagName = parser.getName();
+            if ( tagName.equals("img")) {
+                listOfImages.add(readImg(parser));
+            }
+        }
+        return listOfImages;
+    }
+
+    private String readImg(XmlPullParser parser) throws IOException, XmlPullParserException {
+        String result = "";
+        if (parser.next() == XmlPullParser.TEXT) {
+            result = parser.getText();
+            parser.nextTag();
+        }
+        return result;
+    }
+
 
     private String readText(XmlPullParser parser) throws XmlPullParserException, IOException{
         String result = "";
@@ -159,9 +199,9 @@ public class DbHelper extends SQLiteOpenHelper {
     }
 
     private String readImgName(XmlPullParser parser) throws XmlPullParserException, IOException{
-        parser.require(XmlPullParser.START_TAG,null,"imgName");
+        parser.require(XmlPullParser.START_TAG,null,"img_name");
         String str = readText(parser);
-        parser.require(XmlPullParser.END_TAG,null,"imgName");
+        parser.require(XmlPullParser.END_TAG,null,"img_name");
         return str;
     }
 

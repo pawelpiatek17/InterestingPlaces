@@ -4,7 +4,10 @@
         <name>Manufaktura</name>
         <latitude>51.779521</latitude>
         <longitude>19.446634</longitude>
-        <imgName>manu</imgName>
+        <img_name>manu</img_name>
+        <img_list>
+            <img>manu_1</img>
+        </img_list>
         <description>aaaaaaaa</description>
         <address>Drewnowska 58, 91-002 Łódź</address>
     </info>
@@ -12,7 +15,10 @@
         <name>Port Łódź</name>
         <latitude>51.703745</latitude>
         <longitude>19.415141</longitude>
-        <imgName>port</imgName>
+        <img_name>port</img_name>
+        <img_list>
+            <img>port_1</img>
+        </img_list>
         <description>bbbbbbbbbbbb </description>
         <address>Pabianicka 245, 93-457 Łódź</address>
     </info>
@@ -20,7 +26,10 @@
         <name>Galeria Łódzka</name>
         <latitude>51.758990</latitude>
         <longitude>19.465225</longitude>
-        <imgName>galeria_lodzka</imgName>
+        <img_name>galeria_lodzka</img_name>
+        <img_list>
+            <img>galeria_lodzka_1</img>
+        </img_list>
         <description>ccccccc </description>
         <address> Aleja marsz. Józefa Piłsudskiego 15/23, 90-001 Łódź</address>
     </info>
@@ -28,7 +37,10 @@
         <name>Sukcesja </name>
         <latitude>51.749981</latitude>
         <longitude>19.448324</longitude>
-        <imgName>sukcesja</imgName>
+        <img_name>sukcesja</img_name>
+        <img_list>
+            <img>sukcesja_1</img>
+        </img_list>
         <description>dddddddd </description>
         <address>93-590, aleja Politechniki 1, 93-590 Łódź</address>
     </info>
@@ -36,7 +48,10 @@
         <name>Park im. Jana Matejki</name>
         <latitude>51.773967</latitude>
         <longitude>19.485596</longitude>
-        <imgName>park_matejki</imgName>
+        <img_name>park_matejki</img_name>
+        <img_list>
+            <img>park_matejki_1</img>
+        </img_list>
         <description>eeeeeeeeee </description>
         <address>91-001 Łódź</address>
     </info>
@@ -44,7 +59,10 @@
         <name>Park im. W. Reymonta</name>
         <latitude>51.744298</latitude>
         <longitude>19.463621</longitude>
-        <imgName>park_reymonta</imgName>
+        <img_name>park_reymonta</img_name>
+        <img_list>
+            <img>park_reymonta_1</img>
+        </img_list>
         <description>ffffffffff </description>
         <address>Piotrowska, 91-001 Łódź</address>
     </info>
@@ -52,7 +70,10 @@
         <name>Palmiarnia </name>
         <latitude>51.760312</latitude>
         <longitude>19.479950</longitude>
-        <imgName>palmiarnia</imgName>
+        <img_name>palmiarnia</img_name>
+        <img_list>
+            <img>palmiarnia_1</img>
+        </img_list>
         <description>gggggggggggg</description>
         <address>Piłsudskiego 61, 90-329 Łódź</address>
     </info>

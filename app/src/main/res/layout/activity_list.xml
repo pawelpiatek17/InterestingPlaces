@@ -6,8 +6,8 @@
     android:layout_height="match_parent"
     android:paddingTop="0dp"
     tools:context="com.example.pawe.myapplication.ListActivity"
-    android:orientation="vertical"
-    >
+    android:orientation="vertical">
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -16,15 +16,25 @@
         android:textAlignment="center"
         android:background="@color/customGreen"
         android:padding="10dp"/>
-    <ListView
+
+    <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:dividerHeight="1.5dp"
-        android:divider="@color/customGreen"
+        android:hint="Podaj odległość"
+        android:textSize="20sp"
+        android:paddingStart="10dp"
+        android:inputType="number"
+        android:maxLength="5" />
+
+    <ListView
         android:id="@android:id/list"
-        android:paddingLeft="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:divider="@color/customGreen"
+        android:dividerHeight="1.5dp"
         android:paddingBottom="10dp"
-        android:paddingRight="10dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
         android:paddingTop="10dp">
     </ListView>
 
