@@ -1,12 +1,14 @@
 package com.example.pawe.myapplication;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
+import android.location.LocationManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -48,7 +50,7 @@ import java.util.HashMap;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
         GoogleApiClient.OnConnectionFailedListener,
-        GoogleApiClient.ConnectionCallbacks,LocationListener{
+        GoogleApiClient.ConnectionCallbacks, android.location.LocationListener{
 
     private final String TAG = "MapsActivity";
     private final String SAVED_STATE_BOOLEAN = "saved_boolean";
@@ -58,7 +60,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private final static int REQUEST_CHECK_SETTINGS_CODE = 1;
     private final static int REQUEST_LOCATION_PERMISSION_CODE = 1;
     private GoogleMap mMap;
-    private LatLngBounds lodz;
+    private LatLngBounds boundsLodz;
     private boolean locationPermissionOk = false;
     public GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
@@ -67,6 +69,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private boolean locationUpdatesOn = false;
     private Location mCurrentLocation;
     private Marker currentLocationMarker;
+    private LocationManager locationManager;
     SlidingUpPanelLayout slidingLayout;
     public DbHelper mDbHelper;
     private boolean restore;
@@ -88,7 +91,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     .addApi(LocationServices.API)
                     .build();
         }
-        Log.d("camera", String.valueOf(lodz));
+        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         slidingLayout = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
         slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
         slidingLayout.setDragView(R.id.linear_layout);
@@ -105,7 +108,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
             restore = true;
             if(savedInstanceState.getSerializable(SAVED_STATE_PANEL_STATE) != null) {
-               Log.e("onCreate","savedInstanceState panel state");
+               Log.d(TAG, ": onCreate: savedInstanceState panel state");
                 clickedMarkerHashMap = (HashMap<String, String>) savedInstanceState.getSerializable(SAVED_STATE_MARKER_HASHMAP);
                 if (savedInstanceState.getSerializable(SAVED_STATE_PANEL_STATE) == SlidingUpPanelLayout.PanelState.DRAGGING) {
                         slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
@@ -198,13 +201,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 final String d = "drawable";
                 clickedMarkerHashMap = (HashMap<String,String>) marker.getTag();
                 String name = clickedMarkerHashMap.get(DatabasePlace.COLUMN_NAME_NAME);
-                Log.e("markerClick",name);
+                Log.d(TAG,":setSlidingPanelContentAfterRestore: markerClick, name=" + name);
                 String address = clickedMarkerHashMap.get(DatabasePlace.COLUMN_NAME_ADDRESS);
-                Log.e("markerClick",address);
+                Log.d(TAG,":setSlidingPanelContentAfterRestore: markerClick, address=" + address);
                 String description = clickedMarkerHashMap.get(DatabasePlace.COLUMN_NAME_DESCRIPTION);
-                Log.e("markerClick",description);
+                Log.d(TAG,":setSlidingPanelContentAfterRestore: markerClick, description=" + description);
                 String imgName = clickedMarkerHashMap.get(DatabasePlace.COLUMN_NAME_MAIN_IMG_NAME);
-                Log.e("markerClick",imgName);
+                Log.d(TAG,":setSlidingPanelContentAfterRestore: markerClick, imgName=" + imgName);
                 slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
                 ImageView iv = (ImageView)findViewById(R.id.sliding_layout_image);
                 TextView tvName = (TextView) findViewById(R.id.sliding_layout_name);
@@ -228,20 +231,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         setMapOptions();
         addMarkers();
         if (restore && clickedMarkerHashMap != null) {
-            Log.e("pre","setSlidingPanelContentAfrerRestore");
+            Log.d(TAG,": onMapReady: before setSlidingPanelContentAfterRestore()");
             setSlidingPanelContentAfterRestore();
         }
     }
     private void setSlidingPanelContentAfterRestore() {
         final String d = "drawable";
         String name = clickedMarkerHashMap.get(DatabasePlace.COLUMN_NAME_NAME);
-        Log.e("markerClick",name);
+        Log.d(TAG,":setSlidingPanelContentAfterRestore: markerClick, name=" + name);
         String address = clickedMarkerHashMap.get(DatabasePlace.COLUMN_NAME_ADDRESS);
-        Log.e("markerClick",address);
+        Log.d(TAG,":setSlidingPanelContentAfterRestore: markerClick, address=" + address);
         String description = clickedMarkerHashMap.get(DatabasePlace.COLUMN_NAME_DESCRIPTION);
-        Log.e("markerClick",description);
+        Log.d(TAG,":setSlidingPanelContentAfterRestore: markerClick, description=" + description);
         String imgName = clickedMarkerHashMap.get(DatabasePlace.COLUMN_NAME_MAIN_IMG_NAME);
-        Log.e("markerClick",imgName);
+        Log.d(TAG,":setSlidingPanelContentAfterRestore: markerClick, imgName=" + imgName);
         ImageView iv = (ImageView)findViewById(R.id.sliding_layout_image);
         TextView tvName = (TextView) findViewById(R.id.sliding_layout_name);
         TextView tvAddress = (TextView) findViewById(R.id.sliding_layout_address);
@@ -252,13 +255,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Glide.with(MapsActivity.this).load(getResources().getIdentifier(imgName,d,getPackageName())).into(iv);
     }
     private void setMapOptions(){
-        lodz = new LatLngBounds.Builder()
+        boundsLodz = new LatLngBounds.Builder()
                 .include(new LatLng(51.806862, 19.321633))
                 .include(new LatLng(51.858473, 19.504835))
                 .include(new LatLng(51.754398, 19.637833))
                 .include(new LatLng(51.687828, 19.467888))
                 .build();
-        mMap.setLatLngBoundsForCameraTarget(lodz);
+        mMap.setLatLngBoundsForCameraTarget(boundsLodz);
         mMap.setMinZoomPreference(10.644797f);
     }
     private void addMarkers(){
@@ -345,7 +348,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 final Status status = locationSettingsResult.getStatus();
                 switch (status.getStatusCode()) {
                     case LocationSettingsStatusCodes.SUCCESS: {
-                        Log.e("tag settings", "location not null");
+                        Log.d(TAG, ":checkAndSetLocationSettings : success");
                         startLocationUpdates();
                         break;
                     }
@@ -374,10 +377,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         switch (requestCode) {
             case(REQUEST_CHECK_SETTINGS_CODE): {
                 if (resultCode == RESULT_OK) {
-                    Log.d("activityResult","ok");
+                    Log.d(TAG,": onActivityResult: ok");
                 }
                 else {
-                    Log.e("activityResult","not ok");
+                    Log.d(TAG,": onActivityResult:not ok");
                 }
                 break;
             }
@@ -387,15 +390,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     protected void startLocationUpdates() {
-        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient,mLocationRequest,this);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,0,this);
+        if (locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER) != null ) {
+            putMyLocationMarkerOnMap(locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER));
+        }
         mRequestingLocationUpdates = true;
         locationUpdatesOn = true;
     }
 
     protected void stopLocationUpdates() {
-        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient,this);
-        //locationUpdatesOn = false;
+        locationManager.removeUpdates(this);
+        locationUpdatesOn = false;
     }
+
     @Override
     public void onLocationChanged(Location location) {
         mCurrentLocation = location;
@@ -403,6 +410,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             putMyLocationMarkerOnMap(mCurrentLocation);
         }
     }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+        Log.d(TAG,": onProviderDisabled");
+        if (currentLocationMarker != null) {
+            currentLocationMarker.remove();
+        }
+        currentLocationMarker = null;
+        stopLocationUpdates();
+    }
+
     private void putMyLocationMarkerOnMap(Location location){
         String tag = "myLoc";
         if (currentLocationMarker != null) {
@@ -414,6 +442,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_person_pin_circle_blue_18dp)));
         currentLocationMarker.setTag(tag);
         currentLocationMarker.setTitle("Moja lokalizacja");
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(new LatLng(location.getLatitude(), location.getLongitude()))
+                .zoom(18)
+                .build();
+        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
     public void showMyLocation(View view) {
         if(askForLocalizationPermission)
@@ -425,22 +458,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if(mGoogleApiClient.isConnected() && locationPermissionOk)
         {
             checkAndSetLocationSettings();
-            Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-            if(mLastLocation != null )
+            Location myLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+            if(myLocation != null )
             {
                 if(!locationUpdatesOn){
                     startLocationUpdates();
-                    putMyLocationMarkerOnMap(mLastLocation);
+                    putMyLocationMarkerOnMap(myLocation);
                 }
-                Log.e("tag", "location not null");
-                if(!restore) {
-                    CameraPosition cameraPosition = new CameraPosition.Builder()
-                            .target(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()))
-                            .zoom(15)
-                            .build();
-                    mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-                    restore = false;
-                }
+                Log.d(TAG, ": showMyLocation(): location not null");
+                CameraPosition cameraPosition = new CameraPosition.Builder()
+                        .target(new LatLng(myLocation.getLatitude(), myLocation.getLongitude()))
+                        .zoom(17)
+                        .build();
+                mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
             }
             else {
                 Toast.makeText(this, getResources().getString(R.string.location_unavailable), Toast.LENGTH_SHORT).show();
@@ -453,11 +483,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         switch(requestCode) {
             case REQUEST_LOCATION_PERMISSION_CODE:{
                 if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Log.d("Permissions","loc granted");
+                    Log.d(TAG, ": onRequestPermissionsResult: loc granted");
                     locationPermissionOk = true;
+                    checkAndSetLocationSettings();
                 }
                 else {
-                    Log.d("Permissions","loc denied");
+                    Log.d(TAG, ": onRequestPermissionsResult: loc denied");
                     locationPermissionOk = false;
                 }
             }
