@@ -50,7 +50,7 @@ import java.util.HashMap;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
         GoogleApiClient.OnConnectionFailedListener,
-        GoogleApiClient.ConnectionCallbacks, android.location.LocationListener{
+        GoogleApiClient.ConnectionCallbacks, android.location.LocationListener, LocationListener{
 
     private final String TAG = "MapsActivity";
     private final String SAVED_STATE_BOOLEAN = "saved_boolean";
@@ -61,6 +61,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private final static int REQUEST_LOCATION_PERMISSION_CODE = 1;
     private GoogleMap mMap;
     private LatLngBounds boundsLodz;
+    private boolean isMyLocationMarkerOnMap = false;
     private boolean locationPermissionOk = false;
     public GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
@@ -378,6 +379,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             case(REQUEST_CHECK_SETTINGS_CODE): {
                 if (resultCode == RESULT_OK) {
                     Log.d(TAG,": onActivityResult: ok");
+                    startLocationUpdates();
                 }
                 else {
                     Log.d(TAG,": onActivityResult:not ok");
@@ -390,18 +392,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     protected void startLocationUpdates() {
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,0,this);
-        if (locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER) != null ) {
-            putMyLocationMarkerOnMap(locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER));
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient,mLocationRequest,this);
+        if (LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient) != null) {
+            putMyLocationMarkerOnMap(LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient));
         }
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,1000000,1000,this);
         mRequestingLocationUpdates = true;
         locationUpdatesOn = true;
     }
 
     protected void stopLocationUpdates() {
-        locationManager.removeUpdates(this);
+        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient,this);
         locationUpdatesOn = false;
+        isMyLocationMarkerOnMap = false;
     }
+
 
     @Override
     public void onLocationChanged(Location location) {
@@ -436,17 +441,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if (currentLocationMarker != null) {
             currentLocationMarker.remove();
         }
+        if(!isMyLocationMarkerOnMap) {
+            CameraPosition cameraPosition = new CameraPosition.Builder()
+                    .target(new LatLng(location.getLatitude(), location.getLongitude()))
+                    .zoom(17)
+                    .build();
+            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+        }
         LatLng latLng = new LatLng(location.getLatitude(),location.getLongitude());
         currentLocationMarker = mMap.addMarker(new MarkerOptions()
                 .position(latLng)
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_person_pin_circle_blue_18dp)));
         currentLocationMarker.setTag(tag);
         currentLocationMarker.setTitle("Moja lokalizacja");
-        CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(new LatLng(location.getLatitude(), location.getLongitude()))
-                .zoom(18)
-                .build();
-        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+        isMyLocationMarkerOnMap = true;
     }
     public void showMyLocation(View view) {
         if(askForLocalizationPermission)
@@ -465,12 +473,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     startLocationUpdates();
                     putMyLocationMarkerOnMap(myLocation);
                 }
-                Log.d(TAG, ": showMyLocation(): location not null");
-                CameraPosition cameraPosition = new CameraPosition.Builder()
-                        .target(new LatLng(myLocation.getLatitude(), myLocation.getLongitude()))
-                        .zoom(17)
-                        .build();
-                mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+                Log.e("tag", "location not null");
+                if(!restore) {
+                    CameraPosition cameraPosition = new CameraPosition.Builder()
+                            .target(new LatLng(myLocation.getLatitude(), myLocation.getLongitude()))
+                            .zoom(17)
+                            .build();
+                    mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+                    restore = false;
+                }
             }
             else {
                 Toast.makeText(this, getResources().getString(R.string.location_unavailable), Toast.LENGTH_SHORT).show();
