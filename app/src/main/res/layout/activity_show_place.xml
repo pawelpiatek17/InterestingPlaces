@@ -20,7 +20,7 @@
         android:layout_marginStart="30dp"
         android:layout_marginTop="10dp"
         android:textColor="@android:color/white"
-        android:textAlignment="center"/>
+        android:textAlignment="center" />
 </RelativeLayout>
 <ImageView
     android:id="@+id/activity_show_place_image"

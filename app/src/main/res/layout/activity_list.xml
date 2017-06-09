@@ -24,7 +24,8 @@
         android:textSize="20sp"
         android:paddingStart="10dp"
         android:inputType="number"
-        android:maxLength="5" />
+        android:maxLength="5"
+        android:id="@+id/activity_list_ev_max_distance"/>
 
     <ListView
         android:id="@android:id/list"

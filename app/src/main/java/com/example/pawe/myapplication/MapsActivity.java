@@ -74,6 +74,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     SlidingUpPanelLayout slidingLayout;
     public DbHelper mDbHelper;
     private boolean restore;
+    private String nameForShowPlaceFromList;
     private HashMap<String,String> clickedMarkerHashMap;
 
     @Override
@@ -98,6 +99,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         slidingLayout.setDragView(R.id.linear_layout);
         slidingLayout.setClickable(true);
         mRequestingLocationUpdates = false;
+        Intent intent = getIntent();
+        nameForShowPlaceFromList = intent.getStringExtra(DatabasePlace.COLUMN_NAME_NAME);
         if(savedInstanceState != null) {
 
            /** bylo -> boolean[] boolarr= new boolean[2];
@@ -231,10 +234,58 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
         setMapOptions();
         addMarkers();
+        if(!nameForShowPlaceFromList.isEmpty()){
+            showPlaceFromList();
+        }
         if (restore && clickedMarkerHashMap != null) {
             Log.d(TAG,": onMapReady: before setSlidingPanelContentAfterRestore()");
             setSlidingPanelContentAfterRestore();
         }
+    }
+    private void showPlaceFromList(){
+        final String d = "drawable";
+        SQLiteDatabase db = mDbHelper.getReadableDatabase();
+
+        String[] projection = {
+                DatabasePlace.COLUMN_NAME_ADDRESS,
+                DatabasePlace.COLUMN_NAME_DESCRIPTION,
+                DatabasePlace.COLUMN_NAME_MAIN_IMG_NAME,
+                DatabasePlace.COLUMN_NAME_LATITUDE,
+                DatabasePlace.COLUMN_NAME_LONGITUDE
+        };
+        String selection = DatabasePlace.COLUMN_NAME_NAME + " = ?";
+        String[] selectionArgs ={nameForShowPlaceFromList};
+        Cursor cursor = db.query(
+                DatabasePlace.TABLE_NAME_PLACES,
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null
+        );
+        cursor.moveToFirst();
+        String address = cursor.getString(cursor.getColumnIndex(DatabasePlace.COLUMN_NAME_ADDRESS));
+        String description = cursor.getString(cursor.getColumnIndex(DatabasePlace.COLUMN_NAME_DESCRIPTION));
+        String imgName = cursor.getString(cursor.getColumnIndex(DatabasePlace.COLUMN_NAME_MAIN_IMG_NAME));
+        LatLng latLng = new LatLng(Double.parseDouble(cursor.getString(
+                cursor.getColumnIndex(DatabasePlace.COLUMN_NAME_LATITUDE))),
+                Double.parseDouble(cursor.getString(cursor.getColumnIndex(
+                        DatabasePlace.COLUMN_NAME_LONGITUDE))));
+        ImageView iv = (ImageView)findViewById(R.id.sliding_layout_image);
+        TextView tvName = (TextView) findViewById(R.id.sliding_layout_name);
+        TextView tvAddress = (TextView) findViewById(R.id.sliding_layout_address);
+        TextView tvDescription = (TextView) findViewById(R.id.sliding_layout_description);
+        tvName.setText(nameForShowPlaceFromList);
+        tvAddress.setText(address);
+        tvDescription.setText(description);
+        Glide.with(MapsActivity.this).load(getResources().getIdentifier(imgName,d,getPackageName())).into(iv);
+        slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(new LatLng(latLng.latitude, latLng.longitude))
+                .zoom(17)
+                .build();
+        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
     private void setSlidingPanelContentAfterRestore() {
         final String d = "drawable";
@@ -482,9 +533,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
                     restore = false;
                 }
-            }
-            else {
-                Toast.makeText(this, getResources().getString(R.string.location_unavailable), Toast.LENGTH_SHORT).show();
             }
         }
     }

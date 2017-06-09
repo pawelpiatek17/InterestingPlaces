@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
@@ -59,6 +60,8 @@ public class ListActivity extends android.app.ListActivity {
                 startActivity(intent1);
             }
         });
+        EditText editText = (EditText) findViewById(R.id.activity_list_ev_max_distance);
+        editText.setVisibility(View.GONE);
     }
     private ArrayList<HashMap<String,String>> getDataFromDatabase(LatLng myLocation, String[] strings) {
         String nameString = strings[0];
